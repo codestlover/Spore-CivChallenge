@@ -1,0 +1,170 @@
+
+cmake_minimum_required(VERSION 3.20)
+file(REAL_PATH "${CMAKE_CURRENT_SOURCE_DIR}" CIV_SOURCE_REAL)
+file(REAL_PATH "${CMAKE_CURRENT_BINARY_DIR}" CIV_BINARY_REAL)
+if(CIV_BINARY_REAL STREQUAL CIV_SOURCE_REAL)
+  message(FATAL_ERROR "In-source builds are not supported; delete CMakeCache.txt and CMakeFiles from the source folder "
+    "and configure a separate build folder with -B build")
+endif()
+set(CIV_DEPS_DEFAULT "${CMAKE_CURRENT_SOURCE_DIR}/deps")
+if(NOT "$ENV{CIV_DEPS}" STREQUAL "")
+  set(CIV_DEPS_DEFAULT "$ENV{CIV_DEPS}")
+endif()
+set(CIV_DEPS "${CIV_DEPS_DEFAULT}" CACHE PATH "Dependencies prepared by cmake/setup.sh")
+if(DEFINED CACHE{CIV_MSVC_SDK})
+  set(CIV_MSVC_SDK "${CIV_MSVC_SDK}" CACHE PATH "An existing MSVC CRT and Windows SDK tree in the xwin splat layout")
+endif()
+if(CIV_DEPS STREQUAL "")
+  unset(CIV_DEPS CACHE)
+  message(FATAL_ERROR "CIV_DEPS must not be empty")
+endif()
+foreach(CIV_PATH_VARIABLE CIV_DEPS CIV_MSVC_SDK)
+  if(NOT "${${CIV_PATH_VARIABLE}}" STREQUAL "" AND NOT IS_ABSOLUTE "${${CIV_PATH_VARIABLE}}")
+    set(CIV_BAD_PATH "${${CIV_PATH_VARIABLE}}")
+    unset(${CIV_PATH_VARIABLE} CACHE)
+    message(FATAL_ERROR "${CIV_PATH_VARIABLE} must be an absolute path, not ${CIV_BAD_PATH}")
+  endif()
+endforeach()
+option(CIV_ACCEPT_MSVC_LICENSE "Accept the Microsoft license and download the MSVC CRT and Windows SDK with xwin" OFF)
+# The dependencies must exist before project() because its compiler check links against the MSVC libraries.
+# cmake/setup.sh runs when something is missing or when deps/.setup-stamp was written by another version of it.
+set(CIV_MSVC_TREE "${CIV_DEPS}/msvc-sdk")
+set(CIV_MSVC_EXTERNAL "")
+if(NOT "${CIV_MSVC_SDK}" STREQUAL "")
+  set(CIV_MSVC_EXTERNAL "${CIV_MSVC_SDK}")
+  set(CIV_MSVC_TREE "${CIV_MSVC_SDK}")
+endif()
+# The toolchain bakes the MSVC paths into the cached compiler flags when project() first runs.
+if(EXISTS "${CMAKE_BINARY_DIR}/CMakeCache.txt" AND DEFINED CACHE{CMAKE_CXX_FLAGS})
+  string(FIND "${CMAKE_CXX_FLAGS}" "/imsvc \"${CIV_MSVC_TREE}/crt/include\"" CIV_FLAGS_TREE)
+  if(CIV_FLAGS_TREE EQUAL -1)
+    message(FATAL_ERROR "CMAKE_CXX_FLAGS of this build folder lack the toolchain's /imsvc flags for ${CIV_MSVC_TREE}: "
+      "CIV_DEPS or CIV_MSVC_SDK changed, CMAKE_CXX_FLAGS was set by hand, or the folder was first configured without "
+      "the toolchain file; configure a new build folder")
+  endif()
+endif()
+file(SHA256 "${CMAKE_CURRENT_SOURCE_DIR}/cmake/setup.sh" CIV_SETUP_HASH)
+set(CIV_DEPS_STAMP "")
+if(EXISTS "${CIV_DEPS}/.setup-stamp")
+  file(STRINGS "${CIV_DEPS}/.setup-stamp" CIV_DEPS_STAMP LIMIT_COUNT 1)
+endif()
+set(CIV_NEED_SETUP OFF)
+if(NOT CIV_DEPS_STAMP STREQUAL CIV_SETUP_HASH)
+  set(CIV_NEED_SETUP ON)
+endif()
+foreach(required "${CIV_DEPS}/sdk/Spore/ModAPI.h" "${CIV_DEPS}/modapi/SporeModAPI.lib" "${CIV_DEPS}/Detours/src/detours.h"
+  "${CIV_MSVC_TREE}/crt/include" "${CIV_MSVC_TREE}/sdk/lib/um/x86")
+  if(NOT EXISTS "${required}")
+    set(CIV_NEED_SETUP ON)
+  endif()
+endforeach()
+if(CIV_NEED_SETUP)
+  set(CIV_SETUP_ARGS "")
+  if(NOT CIV_MSVC_EXTERNAL STREQUAL "")
+    if(NOT EXISTS "${CIV_MSVC_EXTERNAL}/crt/include" OR NOT EXISTS "${CIV_MSVC_EXTERNAL}/sdk/lib/um/x86")
+      message(FATAL_ERROR "CIV_MSVC_SDK=${CIV_MSVC_EXTERNAL} is not an xwin splat tree (crt/include, sdk/lib/um/x86)")
+    endif()
+    list(APPEND CIV_SETUP_ARGS --msvc-sdk "${CIV_MSVC_EXTERNAL}")
+  elseif(CIV_ACCEPT_MSVC_LICENSE)
+    list(APPEND CIV_SETUP_ARGS --accept-msvc-license)
+  elseif(NOT EXISTS "${CIV_DEPS}/msvc-sdk/crt/include" OR NOT EXISTS "${CIV_DEPS}/msvc-sdk/sdk/lib/um/x86")
+    message(FATAL_ERROR "The MSVC CRT and Windows SDK are under the Microsoft license and are not redistributed. "
+      "Configure with -DCIV_ACCEPT_MSVC_LICENSE=ON to download them with xwin, "
+      "or with -DCIV_MSVC_SDK=PATH to use an existing xwin splat tree.")
+  endif()
+  find_program(CIV_BASH NAMES bash REQUIRED NO_CMAKE_FIND_ROOT_PATH)
+  message(STATUS "Preparing the dependencies in ${CIV_DEPS} with cmake/setup.sh")
+  execute_process(COMMAND "${CMAKE_COMMAND}" -E env "CIV_DEPS=${CIV_DEPS}"
+    "${CIV_BASH}" "${CMAKE_CURRENT_SOURCE_DIR}/cmake/setup.sh" ${CIV_SETUP_ARGS}
+    RESULT_VARIABLE CIV_SETUP_RESULT)
+  if(NOT CIV_SETUP_RESULT EQUAL 0)
+    message(FATAL_ERROR "cmake/setup.sh failed; if it asks for the Microsoft license, configure with "
+      "-DCIV_ACCEPT_MSVC_LICENSE=ON, or with -DCIV_MSVC_SDK=PATH to use an existing xwin splat tree")
+  endif()
+endif()
+project(CivChallenge LANGUAGES CXX)
+set_property(DIRECTORY APPEND PROPERTY CMAKE_CONFIGURE_DEPENDS cmake/setup.sh)
+set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+set(SPORE_SDK "${CIV_DEPS}/sdk")
+set(SPORE_MODAPI_LIB "${CIV_DEPS}/modapi")
+if("${CIV_MSVC_SDK}" STREQUAL "")
+  set(CIV_MSVC_SDK "${CIV_DEPS}/msvc-sdk")
+endif()
+if(NOT CMAKE_CXX_COMPILER_FRONTEND_VARIANT STREQUAL "MSVC" OR NOT CMAKE_SIZEOF_VOID_P EQUAL 4)
+  message(FATAL_ERROR "This is not the 32-bit clang-cl toolchain; configure a new build folder with "
+    "-DCMAKE_TOOLCHAIN_FILE=cmake/toolchain-clangcl-i686.cmake")
+endif()
+string(FIND "${CMAKE_CXX_FLAGS}" "/imsvc \"${CIV_MSVC_SDK}/crt/include\"" CIV_FLAGS_TREE)
+if(CIV_FLAGS_TREE EQUAL -1)
+  message(FATAL_ERROR "CMAKE_CXX_FLAGS lack the toolchain's /imsvc flags for ${CIV_MSVC_SDK}; keep extra flags in "
+    "CMAKE_CXX_FLAGS_RELEASE and configure a new build folder")
+endif()
+foreach(required "${SPORE_SDK}/Spore/ModAPI.h" "${SPORE_MODAPI_LIB}/SporeModAPI.lib" "${CIV_DEPS}/Detours/src/detours.h"
+  "${CIV_MSVC_SDK}/crt/include" "${CIV_MSVC_SDK}/sdk/lib/um/x86")
+  if(NOT EXISTS "${required}")
+    message(FATAL_ERROR "${required} is missing; run bash cmake/setup.sh or reconfigure")
+  endif()
+endforeach()
+find_program(CIV_BASH NAMES bash REQUIRED NO_CMAKE_FIND_ROOT_PATH)
+find_program(CIV_JQ NAMES jq REQUIRED NO_CMAKE_FIND_ROOT_PATH)
+set(CIV_LAYOUT_GUARD "${CMAKE_CURRENT_SOURCE_DIR}/cmake/layout.sh")
+execute_process(COMMAND "${CIV_BASH}" "${CIV_LAYOUT_GUARD}" --skip "${CMAKE_BINARY_DIR}" --skip "${CIV_DEPS}"
+  --skip "${CIV_MSVC_SDK}"
+  RESULT_VARIABLE CIV_LAYOUT_RESULT)
+if(NOT CIV_LAYOUT_RESULT EQUAL 0)
+  message(FATAL_ERROR "Project layout guard failed; bash cmake/layout.sh --fix reframes the files")
+endif()
+add_custom_target(layout_guard ALL COMMAND "${CIV_BASH}" "${CIV_LAYOUT_GUARD}" --skip "${CMAKE_BINARY_DIR}" --skip "${CIV_DEPS}"
+  --skip "${CIV_MSVC_SDK}"
+  WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}" VERBATIM)
+set(CIV_STRINGS "${CMAKE_BINARY_DIR}/generated/Strings.hpp")
+add_custom_command(OUTPUT "${CIV_STRINGS}"
+  COMMAND "${CMAKE_COMMAND}" -E env "JQ=${CIV_JQ}" "${CIV_BASH}" "${CMAKE_CURRENT_SOURCE_DIR}/cmake/strings.sh"
+    "${CMAKE_CURRENT_SOURCE_DIR}/locale/strings.json" "${CIV_STRINGS}"
+  DEPENDS cmake/strings.sh locale/strings.json
+  COMMENT "Generating the string table from locale/strings.json" VERBATIM)
+# No build-machine paths in __FILE__ and a content-derived PE timestamp instead of the build time.
+add_compile_options("/clang:-ffile-prefix-map=${CMAKE_CURRENT_SOURCE_DIR}/=" /Brepro)
+add_link_options(/Brepro)
+set(DETOURS_SRC "${CIV_DEPS}/Detours/src")
+add_library(civ_detours STATIC "${DETOURS_SRC}/detours.cpp" "${DETOURS_SRC}/modules.cpp"
+  "${DETOURS_SRC}/disasm.cpp" "${DETOURS_SRC}/image.cpp" "${DETOURS_SRC}/creatwth.cpp")
+target_compile_definitions(civ_detours PRIVATE WIN32_LEAN_AND_MEAN _WIN32_WINNT=0x0601)
+target_compile_options(civ_detours PRIVATE /W1 /EHsc)
+add_library(CivChallenge SHARED src/core/CivChallenge.cpp src/core/Allocator.cpp src/settings/Settings.cpp
+  src/settings/SettingsUI.cpp src/settings/NativeDrawables.cpp src/localization/Localization.cpp "${CIV_STRINGS}")
+target_include_directories(CivChallenge PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/src" "${CMAKE_BINARY_DIR}")
+target_include_directories(CivChallenge SYSTEM PRIVATE
+  "${DETOURS_SRC}" "${SPORE_SDK}"
+  "${CIV_MSVC_SDK}/crt/include" "${CIV_MSVC_SDK}/sdk/include/ucrt"
+  "${CIV_MSVC_SDK}/sdk/include/um" "${CIV_MSVC_SDK}/sdk/include/shared")
+target_compile_options(CivChallenge PRIVATE /W3 /EHsc /utf-8 -fms-extensions -fms-compatibility -fms-compatibility-version=19.29)
+target_compile_definitions(CivChallenge PRIVATE WIN32_LEAN_AND_MEAN NOMINMAX UNICODE _UNICODE EA_COMPILER_MSVC=1)
+target_link_directories(CivChallenge PRIVATE "${SPORE_MODAPI_LIB}"
+  "${CIV_MSVC_SDK}/crt/lib/x86" "${CIV_MSVC_SDK}/sdk/lib/um/x86" "${CIV_MSVC_SDK}/sdk/lib/ucrt/x86")
+target_link_libraries(CivChallenge PRIVATE SporeModAPI.lib civ_detours kernel32.lib user32.lib msvcrt.lib ucrt.lib vcruntime.lib)
+target_link_options(CivChallenge PRIVATE "/map:${CMAKE_BINARY_DIR}/CivChallenge.map")
+set_target_properties(CivChallenge PROPERTIES PREFIX "" SUFFIX ".dll" RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bin")
+add_executable(CivChallengeLegacyInstaller WIN32 src/installer/LegacyInstaller.cpp)
+target_link_libraries(CivChallengeLegacyInstaller PRIVATE kernel32.lib user32.lib)
+target_compile_options(CivChallengeLegacyInstaller PRIVATE /GS-)
+target_link_options(CivChallengeLegacyInstaller PRIVATE /NODEFAULTLIB /ENTRY:CivLegacyEntry)
+set_target_properties(CivChallengeLegacyInstaller PROPERTIES OUTPUT_NAME "Installer" RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bin")
+set(CIV_TARGETS civ_detours CivChallenge CivChallengeLegacyInstaller)
+# The Wine smoke tests are private; they are built only when tests/smoke is present.
+if(EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/tests/smoke")
+  add_executable(HookInstallerSmoke tests/smoke/HookInstallerSmoke.cpp)
+  target_include_directories(HookInstallerSmoke PRIVATE "${DETOURS_SRC}")
+  target_link_libraries(HookInstallerSmoke PRIVATE civ_detours kernel32.lib)
+  set_target_properties(HookInstallerSmoke PROPERTIES RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bin")
+  add_executable(SettingsPersistenceSmoke tests/smoke/SettingsPersistenceSmoke.cpp src/settings/Settings.cpp)
+  target_include_directories(SettingsPersistenceSmoke PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/src")
+  target_link_libraries(SettingsPersistenceSmoke PRIVATE kernel32.lib)
+  set_target_properties(SettingsPersistenceSmoke PROPERTIES RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bin")
+  list(APPEND CIV_TARGETS HookInstallerSmoke SettingsPersistenceSmoke)
+endif()
+foreach(target ${CIV_TARGETS})
+  add_dependencies(${target} layout_guard)
+endforeach()
+

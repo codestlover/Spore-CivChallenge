@@ -1,0 +1,53 @@
+
+MIT License
+
+Copyright (c) 2026 The Spore Multiplayer Mod authors
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+
+---
+
+Scope of this licence
+---------------------
+
+This licence covers the mod's own source code in client_mod/src, the
+shared/ sources compiled into SporeMultiplayer.dll, and the generated UI
+art in assets/ui that ships as SporeMultiplayer_UI.package.
+
+It does NOT cover the following files, which are adapted from or depend on
+the Spore ModAPI SDK (https://github.com/emd4600/Spore-ModAPI). That
+repository carries no licence file, so their redistribution terms are
+undetermined until clarified with the SDK author:
+
+  client_mod/src/sdk_impl.cpp                  (hand-written thunks to SDK methods)
+  client_mod/src/ui/widgets/sdk_drawable_stubs.cpp
+  client_mod/sdk_stub/                          (unused stub headers)
+  third_party/patched-sdk/Spore/                (SDK headers, patched for clang-cl)
+  third_party/patched-sdk/case_wrappers/        (include-name shims for the SDK)
+  third_party/patched-sdk/detours_stub/         (Detours 3.0 Express headers, see NOTICE)
+  third_party/SporeModAPIdlls/                  (pre-built SDK import library)
+
+third_party/patched-sdk/EASTL and third_party/patched-sdk/EABase are
+patched copies of EA's EASTL 3.02.01 and are BSD-3-Clause
+(third_party/Spore-ModAPI/EASTL-3.02.01/LICENSE).
+
+Other third-party components linked into the DLL are listed in ../NOTICE,
+including Microsoft Detours 3.0 Express, which is licensed for
+non-commercial use only.
+
