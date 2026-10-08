@@ -3,6 +3,7 @@
 #include <detours.h>
 #include <Spore/ModAPI.h>
 #include "core/SdkCompat.hpp"
+#include "core/HookChain.hpp"
 #include "settings/Settings.hpp"
 #include "localization/Localization.hpp"
 #include <Spore/App/IMessageManager.h>
@@ -873,16 +874,25 @@ bool HostMatches(uintptr_t base) {
            nt->FileHeader.TimeDateStamp == HostTimestamp;
 }
 
+constexpr unsigned HookCount = sizeof(hooks) / sizeof(hooks[0]);
+bool chained[HookCount]{};
+
 bool Install() {
     auto base = reinterpret_cast<uintptr_t>(GetModuleHandleW(nullptr));
     if (!HostMatches(base))
         return false;
-    for (auto& h : hooks) {
+    for (unsigned i = 0; i < HookCount; ++i) {
+        auto& h = hooks[i];
         auto* ptr = reinterpret_cast<void*>(base + h.address - 0x400000);
-        if (memcmp(ptr, h.expected, h.size)) {
-            return false;
+        if (!memcmp(ptr, h.expected, h.size)) {
+            *h.original = ptr;
+            continue;
         }
-        *h.original = ptr;
+        uintptr_t next = HookChain::ForeignTarget(ptr, base, HostImageSize);
+        if (!next)
+            return false;
+        *h.original = reinterpret_cast<void*>(next);
+        chained[i] = true;
     }
     for (auto& h : audioChecks) {
         if (memcmp(reinterpret_cast<void*>(base + h.address - 0x400000), h.expected, h.size)) {
@@ -921,9 +931,9 @@ bool Install() {
     if (err != NO_ERROR)
         return false;
     err = DetourUpdateThread(GetCurrentThread());
-    for (auto& h : hooks)
-        if (err == NO_ERROR)
-            err = DetourAttach(h.original, h.replacement);
+    for (unsigned i = 0; i < HookCount; ++i)
+        if (err == NO_ERROR && !chained[i])
+            err = DetourAttach(hooks[i].original, hooks[i].replacement);
     if (err != NO_ERROR) {
         DetourTransactionAbort();
         return false;
@@ -932,7 +942,10 @@ bool Install() {
     if (err != NO_ERROR) {
         return false;
     }
-
+    for (unsigned i = 0; i < HookCount; ++i)
+        if (chained[i] &&
+            !HookChain::JumpTo(reinterpret_cast<void*>(base + hooks[i].address - 0x400000), hooks[i].replacement))
+            return false;
     return true;
 }
 

@@ -5,7 +5,7 @@ A challenge mod for the **Civilization stage** of *Spore*. It takes away the pla
 the AI nations untouched. Every rule is a separate switch in the game's own settings window, and all mod texts follow
 the game language in all 23 Spore locales.
 
-Current version: **1.0.0**. Download `CivChallenge.sporemod` from the [Releases](../../releases) page.
+Current version: **1.0.1**. Download `CivChallenge.sporemod` from the [Releases](../../releases) page.
 
 ## Rules
 
@@ -42,6 +42,15 @@ are used, so the game's volume settings apply.
 
 On every game launch a native blue information banner, *civilization challenge activated*, appears once in the
 galaxy menu. If the mod cannot activate, a message says so instead.
+
+## Other mods
+
+Civ Challenge works together with other mods that hook the same game functions, for example CivDrive (manual
+control of civilization vehicles), which also hooks vehicle orders.
+When another mod has already put its hook on one of these functions, Civ Challenge puts its own in front of it and
+calls through to the other mod's hook, so both run and the load order does not matter. Only a jump into another
+loaded module's code is accepted there; any other change to the game's code still stops the mod with the usual
+message. The rules apply the same way: a raid that another mod asks for on your behalf is refused like your own.
 
 ## Settings
 
@@ -157,8 +166,8 @@ The generator refuses incomplete or malformed files.
 ### Testing and releases
 
 Releases are checked with an emulator test suite that runs the compiled DLL's x86 code (89 scenarios, including 15
-that execute the game's own code around the hooks) and with Wine smoke tests that install and remove all 19 hooks
-and exercise the settings file. These tools and the packaging scripts are not part of this repository, so the
+that execute the game's own code around the hooks) and with Wine smoke tests that install and remove all 19 hooks,
+chain a hook with another mod's in both load orders and exercise the settings file. These tools and the packaging scripts are not part of this repository, so the
 `.sporemod` is only published on the [Releases](../../releases) page. These checks are not a replacement for playing:
 the diplomacy rules, the scrolling settings page and the translations are verified in the emulator but have not yet
 been played through in-game.

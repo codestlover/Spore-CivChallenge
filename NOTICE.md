@@ -1,5 +1,5 @@
 
-Civ Challenge 1.0.0 is licensed under GPL-3.0-or-later.
+Civ Challenge 1.0.1 is licensed under GPL-3.0-or-later.
 
 Spore ModAPI SDK: Copyright Eric Mor and contributors; GPL-3.0-or-later.
 src/core/Allocator.cpp: Copyright (C) 2018 Eric Mor; GPL-3.0-or-later.
