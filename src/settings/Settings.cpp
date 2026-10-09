@@ -5,13 +5,13 @@
 #include <cstring>
 
 namespace CivSettings {
-bool rules[RuleCount] = {true, true, true, true, true, true};
+bool rules[RuleCount] = {true, true, true, true, true, true, true};
 
 namespace {
 wchar_t directory[512]{};
 wchar_t file[512]{};
-const char* keys[RuleCount] = {"BlockLandRaids",    "LimitTurrets",     "LimitSpice",
-                               "BlockSuperweapons", "BlockCompliments", "LimitGifts"};
+const char* keys[RuleCount] = {"BlockLandRaids",   "LimitTurrets", "LimitSpice",      "BlockSuperweapons",
+                               "BlockCompliments", "LimitGifts",   "LockCityIdeology"};
 
 bool Paths() {
     if (*file)

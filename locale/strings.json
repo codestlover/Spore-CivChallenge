@@ -44,7 +44,12 @@
       "SectionCities": 88,
       "SectionDiplomacy": 68,
       "SectionBadge": 42
-    }
+    },
+    "TitleIdeology": "Lock city ideology",
+    "DescIdeology1": "Captured and purchased cities adopt",
+    "DescIdeology2": "the ideology of your nation.",
+    "DescIdeology3": "The ideology choice window is skipped.",
+    "SectionBadgeThree": "#/3 on"
   },
   "en-gb": {
     "Banner": "civilization challenge activated",
@@ -90,7 +95,12 @@
       "SectionCities": 88,
       "SectionDiplomacy": 68,
       "SectionBadge": 42
-    }
+    },
+    "TitleIdeology": "Lock city ideology",
+    "DescIdeology1": "Captured and purchased cities adopt",
+    "DescIdeology2": "the ideology of your nation.",
+    "DescIdeology3": "The ideology choice window is skipped.",
+    "SectionBadgeThree": "#/3 on"
   },
   "cs-cz": {
     "Banner": "civilizační výzva aktivována",
@@ -136,7 +146,12 @@
       "SectionCities": 95,
       "SectionDiplomacy": 72,
       "SectionBadge": 54
-    }
+    },
+    "TitleIdeology": "Uzamknout ideologii měst",
+    "DescIdeology1": "Dobytá a koupená města přijmou",
+    "DescIdeology2": "ideologii vašeho národa.",
+    "DescIdeology3": "Okno výběru ideologie se nezobrazí.",
+    "SectionBadgeThree": "#/3 zap."
   },
   "da-dk": {
     "Banner": "civilisationsudfordring aktiveret",
@@ -182,7 +197,12 @@
       "SectionCities": 109,
       "SectionDiplomacy": 63,
       "SectionBadge": 66
-    }
+    },
+    "TitleIdeology": "Lås byernes ideologi",
+    "DescIdeology1": "Erobrede og købte byer overtager",
+    "DescIdeology2": "din nations ideologi.",
+    "DescIdeology3": "Vinduet til ideologivalg vises ikke.",
+    "SectionBadgeThree": "#/3 aktive"
   },
   "de-de": {
     "Banner": "zivilisations-challenge aktiviert",
@@ -228,7 +248,12 @@
       "SectionCities": 110,
       "SectionDiplomacy": 71,
       "SectionBadge": 58
-    }
+    },
+    "TitleIdeology": "Stadtideologie festlegen",
+    "DescIdeology1": "Eroberte und gekaufte Städte übernehmen",
+    "DescIdeology2": "die Ideologie deiner Nation.",
+    "DescIdeology3": "Das Fenster zur Ideologiewahl entfällt.",
+    "SectionBadgeThree": "#/3 aktiv"
   },
   "el-gr": {
     "Banner": "πρόκληση πολιτισμού ενεργή",
@@ -274,7 +299,12 @@
       "SectionCities": 131,
       "SectionDiplomacy": 74,
       "SectionBadge": 69
-    }
+    },
+    "TitleIdeology": "Κλείδωμα ιδεολογίας πόλεων",
+    "DescIdeology1": "Οι κατακτημένες και αγορασμένες πόλεις",
+    "DescIdeology2": "υιοθετούν την ιδεολογία του έθνους σας.",
+    "DescIdeology3": "Δεν εμφανίζεται επιλογή ιδεολογίας.",
+    "SectionBadgeThree": "#/3 ενεργ."
   },
   "es-es": {
     "Banner": "desafío de civilización activado",
@@ -320,7 +350,12 @@
       "SectionCities": 124,
       "SectionDiplomacy": 72,
       "SectionBadge": 71
-    }
+    },
+    "TitleIdeology": "Fijar ideología de las ciudades",
+    "DescIdeology1": "Las ciudades conquistadas y compradas",
+    "DescIdeology2": "adoptan la ideología de tu nación.",
+    "DescIdeology3": "No aparece la elección de ideología.",
+    "SectionBadgeThree": "#/3 activas"
   },
   "fi-fi": {
     "Banner": "sivilisaatiohaaste aktivoitu",
@@ -366,7 +401,12 @@
       "SectionCities": 122,
       "SectionDiplomacy": 70,
       "SectionBadge": 65
-    }
+    },
+    "TitleIdeology": "Lukitse kaupunkien ideologia",
+    "DescIdeology1": "Vallatut ja ostetut kaupungit omaksuvat",
+    "DescIdeology2": "kansakuntasi ideologian.",
+    "DescIdeology3": "Ideologian valintaikkunaa ei näytetä.",
+    "SectionBadgeThree": "#/3 päällä"
   },
   "fr-fr": {
     "Banner": "défi civilisation activé",
@@ -412,7 +452,12 @@
       "SectionCities": 99,
       "SectionDiplomacy": 71,
       "SectionBadge": 72
-    }
+    },
+    "TitleIdeology": "Fixer l’idéologie des villes",
+    "DescIdeology1": "Les villes conquises et achetées adoptent",
+    "DescIdeology2": "l’idéologie de votre nation.",
+    "DescIdeology3": "La fenêtre de choix ne s’affiche pas.",
+    "SectionBadgeThree": "#/3 actives"
   },
   "hu-hu": {
     "Banner": "civilizációs kihívás aktiválva",
@@ -458,7 +503,12 @@
       "SectionCities": 115,
       "SectionDiplomacy": 72,
       "SectionBadge": 58
-    }
+    },
+    "TitleIdeology": "Városi ideológia rögzítése",
+    "DescIdeology1": "Az elfoglalt és megvásárolt városok",
+    "DescIdeology2": "átveszik nemzeted ideológiáját.",
+    "DescIdeology3": "Az ideológiaválasztó ablak kimarad.",
+    "SectionBadgeThree": "#/3 aktív"
   },
   "it-it": {
     "Banner": "sfida civiltà attivata",
@@ -504,7 +554,12 @@
       "SectionCities": 89,
       "SectionDiplomacy": 72,
       "SectionBadge": 64
-    }
+    },
+    "TitleIdeology": "Blocca ideologia delle città",
+    "DescIdeology1": "Le città conquistate e acquistate adottano",
+    "DescIdeology2": "l’ideologia della tua nazione.",
+    "DescIdeology3": "La finestra di scelta non appare.",
+    "SectionBadgeThree": "#/3 attive"
   },
   "ja-jp": {
     "Banner": "Civ Challengeが有効になりました",
@@ -550,7 +605,12 @@
       "SectionCities": 87,
       "SectionDiplomacy": 28,
       "SectionBadge": 57
-    }
+    },
+    "TitleIdeology": "都市の思想を固定",
+    "DescIdeology1": "征服・購入した都市は自国の思想を",
+    "DescIdeology2": "引き継ぎます。",
+    "DescIdeology3": "思想の選択画面は表示されません。",
+    "SectionBadgeThree": "#/3 オン"
   },
   "ko-kr": {
     "Banner": "Civ Challenge 활성화됨",
@@ -596,7 +656,12 @@
       "SectionCities": 94,
       "SectionDiplomacy": 25,
       "SectionBadge": 47
-    }
+    },
+    "TitleIdeology": "도시 이념 고정",
+    "DescIdeology1": "정복하거나 구매한 도시는",
+    "DescIdeology2": "플레이어 국가의 이념을 따릅니다.",
+    "DescIdeology3": "이념 선택 창이 표시되지 않습니다.",
+    "SectionBadgeThree": "#/3 켬"
   },
   "nl-nl": {
     "Banner": "beschavingsuitdaging geactiveerd",
@@ -642,7 +707,12 @@
       "SectionCities": 133,
       "SectionDiplomacy": 71,
       "SectionBadge": 49
-    }
+    },
+    "TitleIdeology": "Stadsideologie vastzetten",
+    "DescIdeology1": "Veroverde en gekochte steden nemen",
+    "DescIdeology2": "de ideologie van je natie over.",
+    "DescIdeology3": "Het keuzevenster wordt overgeslagen.",
+    "SectionBadgeThree": "#/3 aan"
   },
   "no-no": {
     "Banner": "sivilisasjonsutfordring aktivert",
@@ -688,7 +758,12 @@
       "SectionCities": 105,
       "SectionDiplomacy": 63,
       "SectionBadge": 42
-    }
+    },
+    "TitleIdeology": "Lås byenes ideologi",
+    "DescIdeology1": "Erobrede og kjøpte byer overtar",
+    "DescIdeology2": "nasjonens ideologi.",
+    "DescIdeology3": "Vinduet for ideologivalg vises ikke.",
+    "SectionBadgeThree": "#/3 på"
   },
   "pl-pl": {
     "Banner": "wyzwanie cywilizacji aktywowane",
@@ -734,7 +809,12 @@
       "SectionCities": 122,
       "SectionDiplomacy": 76,
       "SectionBadge": 46
-    }
+    },
+    "TitleIdeology": "Zablokuj ideologię miast",
+    "DescIdeology1": "Podbite i kupione miasta przyjmują",
+    "DescIdeology2": "ideologię twojego narodu.",
+    "DescIdeology3": "Okno wyboru ideologii się nie pojawia.",
+    "SectionBadgeThree": "#/3 wł."
   },
   "pt-br": {
     "Banner": "desafio de civilização ativado",
@@ -780,7 +860,12 @@
       "SectionCities": 134,
       "SectionDiplomacy": 72,
       "SectionBadge": 64
-    }
+    },
+    "TitleIdeology": "Fixar ideologia das cidades",
+    "DescIdeology1": "Cidades conquistadas e compradas adotam",
+    "DescIdeology2": "a ideologia da sua nação.",
+    "DescIdeology3": "A janela de escolha não é exibida.",
+    "SectionBadgeThree": "#/3 ativas"
   },
   "pt-pt": {
     "Banner": "desafio de civilização activado",
@@ -826,7 +911,12 @@
       "SectionCities": 140,
       "SectionDiplomacy": 72,
       "SectionBadge": 71
-    }
+    },
+    "TitleIdeology": "Fixar ideologia das cidades",
+    "DescIdeology1": "As cidades conquistadas e compradas",
+    "DescIdeology2": "adoptam a ideologia da tua nação.",
+    "DescIdeology3": "A janela de escolha não é apresentada.",
+    "SectionBadgeThree": "#/3 activas"
   },
   "ru-ru": {
     "Banner": "испытание цивилизации включено",
@@ -872,7 +962,12 @@
       "SectionCities": 127,
       "SectionDiplomacy": 84,
       "SectionBadge": 55
-    }
+    },
+    "TitleIdeology": "Запрет смены идеологии",
+    "DescIdeology1": "Захваченные и купленные города",
+    "DescIdeology2": "принимают идеологию вашей державы.",
+    "DescIdeology3": "Окно выбора идеологии не появляется.",
+    "SectionBadgeThree": "#/3 вкл."
   },
   "sv-se": {
     "Banner": "civilisationsutmaning aktiverad",
@@ -918,7 +1013,12 @@
       "SectionCities": 119,
       "SectionDiplomacy": 63,
       "SectionBadge": 42
-    }
+    },
+    "TitleIdeology": "Lås städernas ideologi",
+    "DescIdeology1": "Erövrade och köpta städer antar",
+    "DescIdeology2": "din nations ideologi.",
+    "DescIdeology3": "Fönstret för ideologival visas inte.",
+    "SectionBadgeThree": "#/3 på"
   },
   "th-th": {
     "Banner": "เปิดใช้ความท้าทายอารยธรรมแล้ว",
@@ -964,7 +1064,12 @@
       "SectionCities": 119,
       "SectionDiplomacy": 45,
       "SectionBadge": 51
-    }
+    },
+    "TitleIdeology": "ล็อกอุดมการณ์เมือง",
+    "DescIdeology1": "เมืองที่ยึดครองหรือซื้อจะใช้",
+    "DescIdeology2": "อุดมการณ์เดียวกับชาติของคุณ",
+    "DescIdeology3": "ไม่แสดงหน้าต่างเลือกอุดมการณ์",
+    "SectionBadgeThree": "เปิด #/3"
   },
   "zh-cn": {
     "Banner": "Civ Challenge已启用",
@@ -1010,7 +1115,12 @@
       "SectionCities": 70,
       "SectionDiplomacy": 28,
       "SectionBadge": 54
-    }
+    },
+    "TitleIdeology": "锁定城市理念",
+    "DescIdeology1": "攻占或购买的城市将采用",
+    "DescIdeology2": "玩家国家的理念。",
+    "DescIdeology3": "不再显示理念选择窗口。",
+    "SectionBadgeThree": "#/3 开启"
   },
   "zh-tw": {
     "Banner": "Civ Challenge已啟用",
@@ -1056,7 +1166,12 @@
       "SectionCities": 77,
       "SectionDiplomacy": 31,
       "SectionBadge": 62
-    }
+    },
+    "TitleIdeology": "鎖定城市理念",
+    "DescIdeology1": "攻佔或購買的城市將採用",
+    "DescIdeology2": "玩家國家的理念。",
+    "DescIdeology3": "不再顯示理念選擇視窗。",
+    "SectionBadgeThree": "#/3開啟"
   }
 }
 

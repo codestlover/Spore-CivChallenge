@@ -4,7 +4,7 @@
 #include <cstdint>
 
 namespace CivSettings {
-enum Rule : unsigned { LandRaids, Turrets, Spice, Superweapons, Compliments, Gifts, RuleCount };
+enum Rule : unsigned { LandRaids, Turrets, Spice, Superweapons, Compliments, Gifts, Ideology, RuleCount };
 
 extern bool rules[RuleCount];
 

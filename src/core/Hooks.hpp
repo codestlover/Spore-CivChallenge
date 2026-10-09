@@ -2,6 +2,12 @@
 constexpr unsigned HostImageSize = 26271744;
 constexpr unsigned HostTimestamp = 1727737552;
 Hook hooks[] = {
+    {"finish_city_capture", 0xbe8a20, reinterpret_cast<void**>(&finishCityCapture),
+     reinterpret_cast<void*>(&FinishCityCaptureHook),
+     "\x83\xec\x74\x53\x55\x56\x8b\xf1\x8b\x8e\x90\x05\x00\x00\x57\xc6", 16},
+    {"choose_city_specialty", 0xcf7a30, reinterpret_cast<void**>(&chooseCitySpecialty),
+     reinterpret_cast<void*>(&ChooseCitySpecialtyHook),
+     "\x56\xe8\xca\x59\xe4\xff\x8b\xc8\xe8\x53\xe5\xe2\xff\x8b\xb0\x4c", 16},
     {"vehicle_order", 0xcac1a0, reinterpret_cast<void**>(&order), reinterpret_cast<void*>(&OrderHook),
      "\x83\xec\x18\x55\x57\x8b\xf9\xe8\xb4\xb1\xff\xff\x8b\x6c\x24\x24", 16},
     {"create_turret", 0xbe2100, reinterpret_cast<void**>(&createTurret), reinterpret_cast<void*>(&CreateTurretHook),
@@ -50,6 +56,10 @@ Hook hooks[] = {
 NativeCheck audioChecks[] = {
     {0x436350, "\x55\x8b\xec\x83\xec\x08\xe8\x15\xa3\x5e\x00\x89\x45\xfc\x83\x7d", 16},
     {0x436390, "\x55\x8b\xec\x51\xe8\xd7\xa2\x5e\x00\x89\x45\xfc\x83\x7d\xfc\x00", 16},
+};
+
+NativeCheck captureChecks[] = {
+    {0xbe7520, "\x53\x56\x8b\xf1\x8b\x4c\x24\x0c\x57\x3b\x8e\x40\x05\x00\x00\x74", 16},
 };
 
 NativeCheck startupChecks[] = {

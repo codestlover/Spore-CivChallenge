@@ -74,11 +74,12 @@ constexpr float ViewTop = 50, ViewBottom = 354, ViewHeight = ViewBottom - ViewTo
 constexpr float HintTop = 364, StatusTop = 392;
 constexpr float HeaderHeight = 26, HeaderGap = 6, SectionGap = 12;
 constexpr float FadeBand = 18, WheelStep = 50, ThumbMinimum = 28, RailCenter = 7, Faint = 0.3f;
-constexpr unsigned SectionCount = 3, SectionSize = 2;
-const Asset ruleIcons[RuleCount] = {IconRaids, IconTurrets, IconSpice, IconSuper, IconCompliments, IconGifts};
-const CivText::Text titleTexts[RuleCount] = {CivText::TitleLandRaids,   CivText::TitleTurrets,
-                                             CivText::TitleSpice,       CivText::TitleSuperweapons,
-                                             CivText::TitleCompliments, CivText::TitleGifts};
+constexpr unsigned SectionCount = 3, MaxSectionSize = 3;
+constexpr unsigned sectionSizes[SectionCount] = {2, 3, 2};
+const Asset ruleIcons[RuleCount] = {IconRaids, IconTurrets, IconSpice, IconSuper, IconCompliments, IconGifts, IconCiv};
+const CivText::Text titleTexts[RuleCount] = {CivText::TitleLandRaids,    CivText::TitleTurrets,     CivText::TitleSpice,
+                                             CivText::TitleSuperweapons, CivText::TitleCompliments, CivText::TitleGifts,
+                                             CivText::TitleIdeology};
 
 const CivText::Text descriptionTexts[RuleCount][3] = {
     {CivText::DescLandRaids1, CivText::DescLandRaids2, CivText::DescLandRaids3},
@@ -86,10 +87,11 @@ const CivText::Text descriptionTexts[RuleCount][3] = {
     {CivText::DescSpice1, CivText::DescSpice2, CivText::DescSpice3},
     {CivText::DescSuperweapons1, CivText::DescSuperweapons2, CivText::DescSuperweapons3},
     {CivText::DescCompliments1, CivText::DescCompliments2, CivText::DescCompliments3},
-    {CivText::DescGifts1, CivText::DescGifts2, CivText::DescGifts3}};
+    {CivText::DescGifts1, CivText::DescGifts2, CivText::DescGifts3},
+    {CivText::DescIdeology1, CivText::DescIdeology2, CivText::DescIdeology3}};
 
-const unsigned sectionRules[SectionCount][SectionSize] = {
-    {LandRaids, Superweapons}, {Turrets, Spice}, {Compliments, Gifts}};
+const unsigned sectionRules[SectionCount][MaxSectionSize] = {
+    {LandRaids, Superweapons, RuleCount}, {Turrets, Spice, Ideology}, {Compliments, Gifts, RuleCount}};
 const CivText::Text sectionTexts[SectionCount] = {CivText::SectionWarfare, CivText::SectionCities,
                                                   CivText::SectionDiplomacy};
 bool sectionOpen[SectionCount] = {true, true, true};
@@ -154,7 +156,7 @@ void Present(UTFWin::IWindow* window, float alpha) {
 
 unsigned SectionOf(unsigned rule) {
     for (unsigned s = 0; s < SectionCount; ++s)
-        for (unsigned k = 0; k < SectionSize; ++k)
+        for (unsigned k = 0; k < sectionSizes[s]; ++k)
             if (sectionRules[s][k] == rule)
                 return s;
     return 0;
@@ -197,7 +199,7 @@ void Arrange(Layout& layout, const float* folds, const float* details) {
         y += HeaderHeight;
         layout.block[s] = y;
         float block = HeaderGap;
-        for (unsigned k = 0; k < SectionSize; ++k) {
+        for (unsigned k = 0; k < sectionSizes[s]; ++k) {
             unsigned i = sectionRules[s][k];
             float detail = Pixel(details[i]);
             if (k)
@@ -449,13 +451,14 @@ class SettingsUI final : public UTFWin::IWinProc {
         }
         for (unsigned s = 0; s < SectionCount; ++s) {
             int count = 0;
-            for (unsigned k = 0; k < SectionSize; ++k)
+            for (unsigned k = 0; k < sectionSizes[s]; ++k)
                 count += rules[sectionRules[s][k]] ? 1 : 0;
             if (!badges[s] || !badgeLabels[s] || count == badgeCount[s])
                 continue;
             badgeCount[s] = count;
             char16_t text[24];
-            badgeLabels[s]->ToWindow()->SetCaption(CivText::Format(CivText::SectionBadge, count, text, 24));
+            auto badgeText = sectionSizes[s] == 3 ? CivText::SectionBadgeThree : CivText::SectionBadge;
+            badgeLabels[s]->ToWindow()->SetCaption(CivText::Format(badgeText, count, text, 24));
             auto color = Math::Color(count ? BadgeOnCaption : MutedCaption);
             for (int state = 0; state < 8; ++state)
                 badgeLabels[s]->SetCaptionColor(UTFWin::StateIndices(state), color);
@@ -590,7 +593,7 @@ class SettingsUI final : public UTFWin::IWinProc {
                 groups[s]->SetVisible(high > low);
             }
             float slide = layout.full[s] - layout.shown[s];
-            for (unsigned k = 0; k < SectionSize; ++k) {
+            for (unsigned k = 0; k < sectionSizes[s]; ++k) {
                 unsigned i = sectionRules[s][k];
                 PlaceRule(i, layout.row[i] - slide, layout.detail[i], top, low, high, open[s] * open[s]);
             }
@@ -886,7 +889,7 @@ class SettingsUI final : public UTFWin::IWinProc {
             if (!groups[s])
                 return false;
             groups[s]->SetFlag(UTFWin::kWinFlagClip, true);
-            for (unsigned k = 0; k < SectionSize; ++k)
+            for (unsigned k = 0; k < sectionSizes[s]; ++k)
                 if (!BuildRule(sectionRules[s][k], groups[s], width))
                     return false;
             if (!BuildHeader(s, width))

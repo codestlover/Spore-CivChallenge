@@ -24,6 +24,9 @@ static_assert(sizeof(Simulator::cCity) == 0x818, "City ABI");
 static_assert(sizeof(Simulator::cVehicle) == 0xd98, "Vehicle ABI");
 static_assert(offsetof(Simulator::cCity, mTurrets) == 0x354, "City turret vector ABI");
 static_assert(offsetof(Simulator::cCity, mpCivilization) == 0x590, "City owner ABI");
+static_assert(offsetof(Simulator::cCity, mVehicleSpecialty) == 0x540, "City ideology ABI");
+static_assert(offsetof(Simulator::cCivilization, mCities) == 0x9c, "Civilization cities ABI");
+static_assert(offsetof(Simulator::cCivilization, field_44C) == 0x44c, "Last acquired city ABI");
 static_assert(offsetof(Simulator::cCivilization, mIsPlayerOwned) == 0x89, "Player flag ABI");
 static_assert(offsetof(Simulator::cCommodityNode, mConstructingPoliticalID) == 0x214, "Mine construction ABI");
 
@@ -321,6 +324,45 @@ using ReleaseMineFn = void(__thiscall*)(cCommodityNode*);
 using SuperweaponAvailableFn = bool(__thiscall*)(cCivilization*, int);
 using LaunchSuperweaponFn = void(__thiscall*)(cCivilization*, int, const Math::Vector3&);
 using CitySuperweaponFn = void(__thiscall*)(cCity*, int, const Math::Vector3&);
+using FinishCityCaptureFn = void(__thiscall*)(cCity*, uint32_t, bool, bool);
+using ChooseCitySpecialtyFn = bool(__thiscall*)(void*);
+using SetCitySpecialtyFn = void(__thiscall*)(cCity*, int, bool);
+
+FinishCityCaptureFn finishCityCapture;
+ChooseCitySpecialtyFn chooseCitySpecialty;
+SetCitySpecialtyFn setCitySpecialty;
+
+int PlayerSpecialty(cCivilization* player) {
+    // The native civilization ideology query uses the first city in this list.
+    if (!player || player->mCities.empty() || !player->mCities.front())
+        return -1;
+    int specialty = player->mCities.front()->mVehicleSpecialty;
+    return specialty >= 0 && specialty <= 2 ? specialty : -1;
+}
+
+void __fastcall FinishCityCaptureHook(cCity* city, void*, uint32_t owner, bool immediate, bool changeSpecialty) {
+    auto* player = CivSettings::Enabled(CivSettings::Ideology) ? Player() : nullptr;
+    int specialty = player && city && owner == player->mPoliticalID && city->mpCivilization.get() != player
+                        ? PlayerSpecialty(player)
+                        : -1;
+    // Keep native ownership, capture statistics and cinematic bookkeeping intact.
+    finishCityCapture(city, owner, immediate, changeSpecialty);
+    if (specialty >= 0 && PlayerCity(city) && city->mVehicleSpecialty != specialty)
+        setCitySpecialty(city, specialty, false);
+}
+
+bool __fastcall ChooseCitySpecialtyHook(void* controller, void*) {
+    auto* player = CivSettings::Enabled(CivSettings::Ideology) ? Player() : nullptr;
+    int specialty = PlayerSpecialty(player);
+    auto* city = player ? reinterpret_cast<cCity*>(player->field_44C) : nullptr;
+    if (specialty >= 0 && city && city->mpCivilization.get() == player) {
+        if (city->mVehicleSpecialty != specialty)
+            setCitySpecialty(city, specialty, false);
+        // False means no modal was opened; the native caller resumes its normal flow.
+        return false;
+    }
+    return chooseCitySpecialty(controller);
+}
 
 struct CityEditorLimitsView {
     void* vtable;
@@ -912,6 +954,11 @@ bool Install() {
         if (memcmp(reinterpret_cast<void*>(base + h.address - 0x400000), h.expected, h.size))
             return false;
     }
+    for (auto& h : captureChecks) {
+        if (memcmp(reinterpret_cast<void*>(base + h.address - 0x400000), h.expected, h.size))
+            return false;
+    }
+    setCitySpecialty = reinterpret_cast<SetCitySpecialtyFn>(base + 0xbe7520 - 0x400000);
     getAppModes = reinterpret_cast<AppModesFn>(base + 0x67dcd0 - 0x400000);
     layoutCtor = reinterpret_cast<LayoutCtorFn>(base + 0x8100a0 - 0x400000);
     layoutLoad = reinterpret_cast<LayoutLoadFn>(base + 0x812250 - 0x400000);

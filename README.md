@@ -5,7 +5,7 @@ A challenge mod for the **Civilization stage** of *Spore*. It takes away the pla
 the AI nations untouched. Every rule is a separate switch in the game's own settings window, and all mod texts follow
 the game language in all 23 Spore locales.
 
-Current version: **1.0.1**. Download `CivChallenge.sporemod` from the [Releases](../../releases) page.
+Current version: **1.1.0**. Download `CivChallenge.sporemod` from the [Releases](../../releases) page.
 
 ## Rules
 
@@ -18,6 +18,7 @@ and other stages are not changed.
 | **3 turrets per city** | The 4th turret is not built. At 3 turrets the purchase card in the city editor is disabled and shows the game's own "no free slots" tooltip. |
 | **4 spice sources** | You can own at most 4 spice sources on the whole planet, land and sea together. Towers under construction reserve a place. Losing a source frees one. At the limit you can still attack or convert other nations' sources, but a source you win becomes neutral instead of yours. |
 | **No superweapons** | All 12 superweapon panel abilities (military, religious and economic) are disabled, including their hotkeys. Nothing is paid and no cooldown starts. |
+| **Lock city ideology** | Captured and purchased cities automatically adopt your nation's ideology (the first city in its city list). The ideology selection window does not appear. Existing cities are not changed when the rule is enabled. |
 | **No compliments** | The *Compliment* answer is disabled when you talk to any empire, like an answer you cannot afford. |
 | **3 gifts per empire** | Each nation accepts at most 3 paid gifts of any size (1000, 2000 or 4000). Every nation has its own counter. After the third gift the *Gift* entry and all amounts for that nation are disabled. |
 
@@ -54,8 +55,8 @@ message. The rules apply the same way: a raid that another mod asks for on your 
 
 ## Settings
 
-Open **Settings → Civ Challenge**. The six switches are grouped in three collapsible sections: *Warfare* (land raids,
-superweapons), *Cities & spice* (turrets, spice sources) and *Diplomacy* (compliments, gifts).
+Open **Settings → Civ Challenge**. The seven switches are grouped in three collapsible sections: *Warfare* (land raids,
+superweapons), *Cities & spice* (turrets, spice sources, city ideology) and *Diplomacy* (compliments, gifts).
 
 - A gold switch with a check mark means the rule is on; grey means off. All rules are on by default.
 - Clicking a rule's name expands its explanation without changing it.
@@ -165,8 +166,8 @@ The generator refuses incomplete or malformed files.
 
 ### Testing and releases
 
-Releases are checked with an emulator test suite that runs the compiled DLL's x86 code (89 scenarios, including 15
-that execute the game's own code around the hooks) and with Wine smoke tests that install and remove all 19 hooks,
+Releases are checked with an emulator test suite that runs the compiled DLL's x86 code (94 scenarios, including 15
+that execute the game's own code around the hooks) and with Wine smoke tests that install and remove all 21 hooks,
 chain a hook with another mod's in both load orders and exercise the settings file. These tools and the packaging scripts are not part of this repository, so the
 `.sporemod` is only published on the [Releases](../../releases) page. These checks are not a replacement for playing:
 the diplomacy rules, the scrolling settings page and the translations are verified in the emulator but have not yet
