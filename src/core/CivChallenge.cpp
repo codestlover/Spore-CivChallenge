@@ -23,6 +23,7 @@ static_assert(sizeof(Simulator::cCommodityNode) == 0x290, "Commodity ABI");
 static_assert(sizeof(Simulator::cCity) == 0x818, "City ABI");
 static_assert(sizeof(Simulator::cVehicle) == 0xd98, "Vehicle ABI");
 static_assert(offsetof(Simulator::cCity, mTurrets) == 0x354, "City turret vector ABI");
+static_assert(offsetof(Simulator::cCombatant, field_34) == 0x34, "Combatant state ABI");
 static_assert(offsetof(Simulator::cCity, mpCivilization) == 0x590, "City owner ABI");
 static_assert(offsetof(Simulator::cCity, mVehicleSpecialty) == 0x540, "City ideology ABI");
 static_assert(offsetof(Simulator::cCivilization, mCities) == 0x9c, "Civilization cities ABI");
@@ -272,6 +273,28 @@ bool PlayerCivilization(cCivilization* civilization) {
 bool PlayerVehicle(cVehicle* vehicle) {
     auto* p = Player();
     return p && vehicle && vehicle->cGameData::mPoliticalID == p->mPoliticalID;
+}
+
+bool TurretDestroyed(cTurret* turret) {
+    // A destroyed turret keeps combat state 2 and stays in the city until the native city update removes it.
+    return static_cast<cCombatant*>(turret)->field_34 == 2;
+}
+
+unsigned TurretCount(cCity* city) {
+    unsigned count = 0;
+    for (auto& turret : city->mTurrets)
+        if (turret && !TurretDestroyed(turret.get()))
+            ++count;
+    return count;
+}
+
+cTurret* LastTurret(cCity* city) {
+    for (size_t i = city->mTurrets.size(); i--;) {
+        auto* turret = city->mTurrets[i].get();
+        if (turret && !TurretDestroyed(turret))
+            return turret;
+    }
+    return nullptr;
 }
 
 unsigned SpiceCount(cCivilization* player, cCommodityNode* exclude = nullptr, bool pending = false) {
@@ -686,7 +709,7 @@ void __fastcall PaletteClickHook(void* viewer, void*) {
         if (item && info && *reinterpret_cast<uint32_t*>(item + 0x24) == 0x0142462a) {
             auto* limits = *reinterpret_cast<CityEditorLimitsView**>(info + 8);
             if (limits && reinterpret_cast<uintptr_t>(limits->vtable) == cityEditorLimitsVtable &&
-                PlayerCity(limits->city) && limits->city->mTurrets.size() >= MaxTurrets) {
+                PlayerCity(limits->city) && TurretCount(limits->city) >= MaxTurrets) {
                 RejectSound();
                 return;
             }
@@ -698,7 +721,7 @@ void __fastcall PaletteClickHook(void* viewer, void*) {
 int __fastcall CityEditorCapacityHook(CityEditorLimitsView* limits, void*, int index) {
     int available = cityEditorCapacity(limits, index);
     if (CivSettings::Enabled(CivSettings::Turrets) && index == 2 && limits && PlayerCity(limits->city)) {
-        unsigned count = limits->city->mTurrets.size();
+        unsigned count = TurretCount(limits->city);
         int remaining = count >= MaxTurrets ? 0 : int(MaxTurrets - count);
         if (available > remaining)
             available = remaining;
@@ -759,7 +782,7 @@ void __fastcall CommActionHook(void* manager, void*, const CnvActionView* action
 }
 
 bool TurretBlocked(cCity* city) {
-    if (CivSettings::Enabled(CivSettings::Turrets) && PlayerCity(city) && city->mTurrets.size() >= MaxTurrets) {
+    if (CivSettings::Enabled(CivSettings::Turrets) && PlayerCity(city) && TurretCount(city) >= MaxTurrets) {
         RejectSound();
         return true;
     }
@@ -835,9 +858,9 @@ void Update() {
         auto* city = cp.get();
         if (!city || city->mpCivilization.get() != p)
             continue;
-        while (CivSettings::Enabled(CivSettings::Turrets) && city->mTurrets.size() > MaxTurrets) {
+        while (CivSettings::Enabled(CivSettings::Turrets) && TurretCount(city) > MaxTurrets) {
             size_t before = city->mTurrets.size();
-            auto* turret = city->mTurrets.back().get();
+            auto* turret = LastTurret(city);
             cGameDataPtr keepAlive = static_cast<cGameData*>(turret);
             removeTurret(city, turret, false);
             if (city->mTurrets.size() >= before) {

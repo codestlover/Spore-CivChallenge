@@ -5,7 +5,7 @@ A challenge mod for the **Civilization stage** of *Spore*. It takes away the pla
 the AI nations untouched. Every rule is a separate switch in the game's own settings window, and all mod texts follow
 the game language in all 23 Spore locales.
 
-Current version: **1.1.0**. Download `CivChallenge.sporemod` from the [Releases](../../releases) page.
+Current version: **1.1.1**. Download `CivChallenge.sporemod` from the [Releases](../../releases) page.
 
 ## Rules
 
@@ -15,7 +15,7 @@ and other stages are not changed.
 | Rule | What it does |
 | --- | --- |
 | **No land raids** | Your land vehicles cannot raid tribes. Raid orders that were already given are cancelled. |
-| **3 turrets per city** | The 4th turret is not built. At 3 turrets the purchase card in the city editor is disabled and shows the game's own "no free slots" tooltip. |
+| **3 turrets per city** | The 4th turret is not built. At 3 turrets the purchase card in the city editor is disabled and shows the game's own "no free slots" tooltip. Destroyed turrets that are still standing in the city do not count. |
 | **4 spice sources** | You can own at most 4 spice sources on the whole planet, land and sea together. Towers under construction reserve a place. Losing a source frees one. At the limit you can still attack or convert other nations' sources, but a source you win becomes neutral instead of yours. |
 | **No superweapons** | All 12 superweapon panel abilities (military, religious and economic) are disabled, including their hotkeys. Nothing is paid and no cooldown starts. |
 | **Lock city ideology** | Captured and purchased cities automatically adopt your nation's ideology (the first city in its city list). The ideology selection window does not appear. Existing cities are not changed when the rule is enabled. |
@@ -34,8 +34,9 @@ Details that matter in play:
   the refusal sound; the money for such a purchase is lost.
 - Turning the turret or spice rule back on applies it at once: extra turrets are removed and extra sources are
   released (the first 4 in the game's own list are kept). The same happens when you load an older save or take
-  over a city that is over the limit. These are normal game-state changes, so disabling or removing the mod later
-  does not bring them back. For a fresh run, enable the mod before the Civilization stage starts.
+  over a city that is over the limit. Only intact turrets count here; destroyed ones are left for the game to clear
+  away as usual. These are normal game-state changes, so disabling or removing the mod later does not bring them
+  back. For a fresh run, enable the mod before the Civilization stage starts.
 
 Trying a forbidden action plays Spore's native **refusal sound**, including clicks on disabled cards, buttons and
 answers. A group order plays one cue. Hovering, UI refreshes and background checks are silent. No extra sound files
@@ -166,7 +167,7 @@ The generator refuses incomplete or malformed files.
 
 ### Testing and releases
 
-Releases are checked with an emulator test suite that runs the compiled DLL's x86 code (94 scenarios, including 15
+Releases are checked with an emulator test suite that runs the compiled DLL's x86 code (102 scenarios, including 16
 that execute the game's own code around the hooks) and with Wine smoke tests that install and remove all 21 hooks,
 chain a hook with another mod's in both load orders and exercise the settings file. These tools and the packaging scripts are not part of this repository, so the
 `.sporemod` is only published on the [Releases](../../releases) page. These checks are not a replacement for playing:
