@@ -5,7 +5,7 @@ A challenge mod for the **Civilization stage** of *Spore*. It takes away the pla
 the AI nations untouched. Every rule is a separate switch in the game's own settings window, and all mod texts follow
 the game language in all 23 Spore locales.
 
-Current version: **1.1.1**. Download `CivChallenge.sporemod` from the [Releases](../../releases) page.
+Current version: **1.1.2**. Download `CivChallenge.sporemod` from the [Releases](../../releases) page.
 
 ## Rules
 

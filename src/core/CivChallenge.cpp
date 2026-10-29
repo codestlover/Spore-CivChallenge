@@ -171,8 +171,6 @@ bool ShowStartupBanner() {
     root->SetVisible(true);
     root->SetIgnoreMouse(true);
     root->SetFlag(UTFWin::kWinFlagIgnoreMouseChildren, true);
-    container->SetIgnoreMouse(true);
-    container->SetFlag(UTFWin::kWinFlagIgnoreMouseChildren, true);
     startupRoot = root;
     startupIcon = icon;
     startupRibbon = ribbon;
