@@ -4,6 +4,7 @@
 #include <Spore/ModAPI.h>
 #include "core/SdkCompat.hpp"
 #include "core/HookChain.hpp"
+#include "core/Relocation.hpp"
 #include "settings/Settings.hpp"
 #include "localization/Localization.hpp"
 #include <Spore/App/IMessageManager.h>
@@ -930,11 +931,23 @@ struct NativeCheck {
 
 #include "core/Hooks.hpp"
 
-bool HostMatches(uintptr_t base) {
+// Steam's SporeApp.exe is the same link as SporeApp_ModAPIFix.exe with SteamStub's .bind section on top; the stub
+// decrypts the code before mods load, so the byte checks below decide whether the code is the expected one.
+constexpr unsigned SteamImageSize = 26443776;
+
+unsigned HostSize(uintptr_t base) {
     auto* dos = reinterpret_cast<IMAGE_DOS_HEADER*>(base);
     auto* nt = reinterpret_cast<IMAGE_NT_HEADERS*>(base + dos->e_lfanew);
-    return nt->FileHeader.Machine == IMAGE_FILE_MACHINE_I386 && nt->OptionalHeader.SizeOfImage == HostImageSize &&
-           nt->FileHeader.TimeDateStamp == HostTimestamp;
+    if (nt->FileHeader.Machine != IMAGE_FILE_MACHINE_I386 || nt->FileHeader.TimeDateStamp != HostTimestamp)
+        return 0;
+    unsigned size = nt->OptionalHeader.SizeOfImage;
+    return size == HostImageSize || size == SteamImageSize ? size : 0;
+}
+
+// Windows may map the game at another base than 0x400000; the code there carries the loader's relocations.
+bool CodeMatches(uintptr_t base, uint32_t address, const char* expected, size_t size) {
+    return Relocation::Matches(reinterpret_cast<const unsigned char*>(base), uint32_t(base - Relocation::PreferredBase),
+                               address - Relocation::PreferredBase, expected, size);
 }
 
 constexpr unsigned HookCount = sizeof(hooks) / sizeof(hooks[0]);
@@ -942,41 +955,42 @@ bool chained[HookCount]{};
 
 bool Install() {
     auto base = reinterpret_cast<uintptr_t>(GetModuleHandleW(nullptr));
-    if (!HostMatches(base))
+    unsigned hostSize = HostSize(base);
+    if (!hostSize)
         return false;
     for (unsigned i = 0; i < HookCount; ++i) {
         auto& h = hooks[i];
         auto* ptr = reinterpret_cast<void*>(base + h.address - 0x400000);
-        if (!memcmp(ptr, h.expected, h.size)) {
+        if (CodeMatches(base, h.address, h.expected, h.size)) {
             *h.original = ptr;
             continue;
         }
-        uintptr_t next = HookChain::ForeignTarget(ptr, base, HostImageSize);
+        uintptr_t next = HookChain::ForeignTarget(ptr, base, hostSize);
         if (!next)
             return false;
         *h.original = reinterpret_cast<void*>(next);
         chained[i] = true;
     }
     for (auto& h : audioChecks) {
-        if (memcmp(reinterpret_cast<void*>(base + h.address - 0x400000), h.expected, h.size)) {
+        if (!CodeMatches(base, h.address, h.expected, h.size)) {
             return false;
         }
     }
     for (auto& h : startupChecks) {
-        if (memcmp(reinterpret_cast<void*>(base + h.address - 0x400000), h.expected, h.size)) {
+        if (!CodeMatches(base, h.address, h.expected, h.size)) {
             return false;
         }
     }
     for (auto& h : settingsChecks) {
-        if (memcmp(reinterpret_cast<void*>(base + h.address - 0x400000), h.expected, h.size))
+        if (!CodeMatches(base, h.address, h.expected, h.size))
             return false;
     }
     for (auto& h : diplomacyChecks) {
-        if (memcmp(reinterpret_cast<void*>(base + h.address - 0x400000), h.expected, h.size))
+        if (!CodeMatches(base, h.address, h.expected, h.size))
             return false;
     }
     for (auto& h : captureChecks) {
-        if (memcmp(reinterpret_cast<void*>(base + h.address - 0x400000), h.expected, h.size))
+        if (!CodeMatches(base, h.address, h.expected, h.size))
             return false;
     }
     setCitySpecialty = reinterpret_cast<SetCitySpecialtyFn>(base + 0xbe7520 - 0x400000);
@@ -1020,7 +1034,7 @@ bool Install() {
 void Init() {
     auto base = reinterpret_cast<uintptr_t>(GetModuleHandleW(nullptr));
     auto* locale = reinterpret_cast<void*>(base + localeChecks[0].address - 0x400000);
-    if (HostMatches(base) && !memcmp(locale, localeChecks[0].expected, localeChecks[0].size))
+    if (HostSize(base) && CodeMatches(base, localeChecks[0].address, localeChecks[0].expected, localeChecks[0].size))
         CivText::Bind(reinterpret_cast<uintptr_t>(locale));
     enabled = Install();
     if (enabled) {

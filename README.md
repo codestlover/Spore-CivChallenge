@@ -5,7 +5,7 @@ A challenge mod for the **Civilization stage** of *Spore*. It takes away the pla
 the AI nations untouched. Every rule is a separate switch in the game's own settings window, and all mod texts follow
 the game language in all 23 Spore locales.
 
-Current version: **1.1.2**. Download `CivChallenge.sporemod` from the [Releases](../../releases) page.
+Current version: **1.1.3**. Download `CivChallenge.sporemod` from the [Releases](../../releases) page.
 
 ## Rules
 
@@ -76,6 +76,19 @@ into every Spore locale: cs-cz, da-dk, de-de, el-gr, en-gb, en-us, es-es, fi-fi,
 ko-kr, nl-nl, no-no, pl-pl, pt-br, pt-pt, ru-ru, sv-se, th-th, zh-cn and zh-tw. The language is taken from the
 game's locale manager; an unknown language falls back to English. Terms follow each language's own game text
 tables, and every string was measured with the game's own fonts to fit its place.
+
+## Game versions
+
+Civ Challenge runs on Windows and on Linux (Wine, Proton) with Spore Galactic Adventures from the EA app or Origin
+(the `SporeApp_ModAPIFix.exe` that the Launcher Kit sets up), from GOG and from Steam (the October 2024
+`SporeApp.exe`). Before it hooks anything, the mod compares the game's code at the 37 places it hooks or depends on
+most with the bytes it expects; on any other game build it changes nothing and shows its usual message.
+
+Windows usually loads the game at a different address on each start (ASLR), and the loader then adjusts every
+absolute address inside the game's code. Since 1.1.3 the mod takes these adjustments back out before it compares the
+code, so it starts wherever the game is loaded. Earlier versions compared the code only as it is stored in the file,
+so on Windows they showed the error message instead of starting; Wine keeps the game at its usual address, which is
+why they worked there. Earlier versions also did not accept Steam's `SporeApp.exe` on any system.
 
 ## Installation
 
@@ -169,7 +182,9 @@ The generator refuses incomplete or malformed files.
 
 Releases are checked with an emulator test suite that runs the compiled DLL's x86 code (102 scenarios, including 16
 that execute the game's own code around the hooks) and with Wine smoke tests that install and remove all 21 hooks,
-chain a hook with another mod's in both load orders and exercise the settings file. These tools and the packaging scripts are not part of this repository, so the
+chain a hook with another mod's in both load orders and exercise the settings file. A static check loads the
+game's executable at several addresses the way Windows does, applies the loader's relocations and runs the mod's own
+code checks against each copy. These tools and the packaging scripts are not part of this repository, so the
 `.sporemod` is only published on the [Releases](../../releases) page. These checks are not a replacement for playing:
 the diplomacy rules, the scrolling settings page and the translations are verified in the emulator but have not yet
 been played through in-game.
